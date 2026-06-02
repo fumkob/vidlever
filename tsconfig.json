@@ -24,7 +24,11 @@
     "allowImportingTsExtensions": true,
     "useDefineForClassFields": true,
     "noEmit": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    // Ambient Chrome extension API types. Listed explicitly because pnpm's
+    // symlinked node_modules defeats TypeScript's automatic @types inclusion.
+    "types": ["chrome"]
   },
   "include": ["src", "tests", "vite.config.ts"]
 }
