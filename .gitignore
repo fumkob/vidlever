@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Node / build artifacts (see overview.md §12)
+node_modules/
+dist/
+
+# Extension signing key — never commit (see overview.md §13.3)
+*.pem

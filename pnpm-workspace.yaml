@@ -1,0 +1,14 @@
+# Supply-chain hardening.
+# Only install package versions that have been public for at least 7 days
+# (10080 minutes). Malicious releases are usually pulled from the registry
+# within ~1 hour, so this delay filters most of them out before they reach us.
+# Requires pnpm >= 10.16. Setting this explicitly also turns on strict mode.
+# Docs: https://pnpm.io/settings#minimumreleaseage
+minimumReleaseAge: 10080
+
+# Block postinstall/build scripts unless explicitly allowed (pnpm default).
+# spawn-sync (a dev-only transitive dep of vite-plugin-web-extension) only ships
+# a legacy child_process.spawnSync polyfill; Node has had spawnSync built in
+# since 0.12, so its native install script is unnecessary.
+allowBuilds:
+  spawn-sync: false
