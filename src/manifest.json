@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Vidlever",
+  "version": "0.1.0",
+  "description": "Keyboard-driven playback control for every HTML5 video.",
+  "default_locale": "en",
+  "key": "$PLACEHOLDER$ replace with the Base64 public key in T6.1 (see overview.md §13)",
+  "permissions": ["storage"],
+  "options_ui": {
+    "page": "src/options/index.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "all_frames": true,
+      "run_at": "document_idle",
+      "js": ["src/content/index.ts"]
+    }
+  ]
+}
