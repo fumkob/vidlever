@@ -6,6 +6,15 @@
   "description": "Keyboard-driven video control browser extension (MV3)",
   "license": "UNLICENSED",
   "packageManager": "pnpm@11.5.1+sha512.93f7b57422ea7068257235b4c16eb60762eb68e1dc23723199cc739043ea9be2c4143274a399d8c6defa2b1176226d9ca1c4b63482d6200c1a8fbaa78c1d1485",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome check --write ."
+  },
   "dependencies": {
     "preact": "^10.29.2"
   },
