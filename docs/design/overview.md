@@ -129,11 +129,11 @@ Vidlever ships with a minimal default set. The user is expected to extend it via
 | Order | Action | Parameters | Default key |
 |---|---|---|---|
 | 1 | `playPause` | — | `Space` |
-| 2 | `skipForward` | `seconds: 10` | `ArrowRight` |
-| 3 | `skipBackward` | `seconds: 10` | `ArrowLeft` |
+| 2 | `skipForward` | `seconds: 10` | `x` |
+| 3 | `skipBackward` | `seconds: 10` | `z` |
 | 4 | `fullscreenToggle` | — | `f` |
-| 5 | `speedDelta` | `delta: +0.1` | `Shift+.` |
-| 6 | `speedDelta` | `delta: -0.1` | `Shift+,` |
+| 5 | `speedDelta` | `delta: +0.1` | `d` |
+| 6 | `speedDelta` | `delta: -0.1` | `s` |
 | 7 | `speedSet` | `rate: 1.0` | `r` |
 
 Actions `muteToggle`, `pipToggle`, `seekToStart`, `seekToEnd`, and `loopToggle` are **available but unbound** by default. Users add them in the options page when needed.
@@ -343,11 +343,11 @@ sequenceDiagram
 
     Note over CS: keydown capture listener is already attached<br/>(video detected in this frame)
 
-    U->>DOM: presses ArrowRight
+    U->>DOM: presses x
     DOM->>CS: keydown event (capture phase)
     CS->>CS: active element is text input?
     Note right of CS: if yes → return without action
-    CS->>CS: look up bindings list for ArrowRight
+    CS->>CS: look up bindings list for x
     CS->>CS: pick binding skipForward(seconds: 10)
     CS->>CS: resolve target video<br/>(playing → largest → first)
     CS->>V: video.currentTime += 10

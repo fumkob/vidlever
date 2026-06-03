@@ -19,14 +19,14 @@ export const DEFAULT_BINDINGS: Binding[] = [
   {
     id: "default-skip-forward",
     enabled: true,
-    key: { key: "ArrowRight" },
+    key: { key: "x" },
     action: "skipForward",
     params: { seconds: 10 },
   },
   {
     id: "default-skip-backward",
     enabled: true,
-    key: { key: "ArrowLeft" },
+    key: { key: "z" },
     action: "skipBackward",
     params: { seconds: 10 },
   },
@@ -34,14 +34,14 @@ export const DEFAULT_BINDINGS: Binding[] = [
   {
     id: "default-speed-up",
     enabled: true,
-    key: { key: ".", shift: true },
+    key: { key: "d" },
     action: "speedDelta",
     params: { delta: 0.1 },
   },
   {
     id: "default-speed-down",
     enabled: true,
-    key: { key: ",", shift: true },
+    key: { key: "s" },
     action: "speedDelta",
     params: { delta: -0.1 },
   },
