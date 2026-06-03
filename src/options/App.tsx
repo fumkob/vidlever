@@ -7,6 +7,7 @@
 
 import { useEffect, useRef, useState } from "preact/hooks";
 import { DEFAULT_SETTINGS } from "../shared/defaults.ts";
+import { t } from "../shared/i18n.ts";
 import { loadSettings, saveSettings } from "../shared/storage.ts";
 import type { StoredSettings } from "../shared/types.ts";
 import { BindingList } from "./components/BindingList.tsx";
@@ -73,7 +74,7 @@ export function App() {
   }
 
   if (settings === null) {
-    return <div class={styles.loading}>Loading settings…</div>;
+    return <div class={styles.loading}>{t("optLoading")}</div>;
   }
 
   return (
@@ -83,19 +84,13 @@ export function App() {
           <span class={styles.dot} />
           <h1 class={styles.h1}>Vidlever</h1>
         </div>
-        <p class={styles.tagline}>
-          Keyboard-driven playback control for every HTML5 video. Changes save automatically and
-          sync across every machine signed into your Chrome.
-        </p>
+        <p class={styles.tagline}>{t("optTagline")}</p>
       </header>
 
       <section class={styles.card}>
         <div class={styles.cardHead}>
-          <h2 class={styles.cardTitle}>Shortcuts</h2>
-          <p class={styles.cardDesc}>
-            Bindings are matched top to bottom — on duplicate keys the first enabled match wins.
-            Drag a row to change its priority.
-          </p>
+          <h2 class={styles.cardTitle}>{t("optShortcutsTitle")}</h2>
+          <p class={styles.cardDesc}>{t("optShortcutsDesc")}</p>
         </div>
         <BindingList
           bindings={settings.bindings}
@@ -105,8 +100,8 @@ export function App() {
 
       <section class={styles.card}>
         <div class={styles.cardHead}>
-          <h2 class={styles.cardTitle}>Speed limits</h2>
-          <p class={styles.cardDesc}>Bounds and rounding applied after every speed change.</p>
+          <h2 class={styles.cardTitle}>{t("optSpeedTitle")}</h2>
+          <p class={styles.cardDesc}>{t("optSpeedDesc")}</p>
         </div>
         <SpeedLimits
           value={settings.speedLimits}
@@ -116,18 +111,16 @@ export function App() {
 
       <section class={styles.card}>
         <div class={styles.cardHead}>
-          <h2 class={styles.cardTitle}>HUD</h2>
-          <p class={styles.cardDesc}>
-            The on-video overlay that shows the current speed plus mute and loop state.
-          </p>
+          <h2 class={styles.cardTitle}>{t("optHudTitle")}</h2>
+          <p class={styles.cardDesc}>{t("optHudDesc")}</p>
         </div>
         <HudSettings value={settings.hud} onChange={(hud) => commit({ ...settings, hud })} />
       </section>
 
       <section class={styles.card}>
         <div class={styles.cardHead}>
-          <h2 class={styles.cardTitle}>Backup</h2>
-          <p class={styles.cardDesc}>Export to a file, import a saved file, or reset everything.</p>
+          <h2 class={styles.cardTitle}>{t("optBackupTitle")}</h2>
+          <p class={styles.cardDesc}>{t("optBackupDesc")}</p>
         </div>
         <ImportExport
           settings={settings}
@@ -136,7 +129,7 @@ export function App() {
         />
       </section>
 
-      <footer class={styles.footer}>vidlever · settings · schema v{settings.version}</footer>
+      <footer class={styles.footer}>{t("optFooter", [String(settings.version)])}</footer>
     </div>
   );
 }

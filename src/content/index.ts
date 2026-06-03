@@ -11,6 +11,7 @@
 //
 // Runs in every frame (all_frames); each frame operates only on its own videos.
 
+import { t } from "../shared/i18n.ts";
 import { loadSettings } from "../shared/storage.ts";
 import { executeAction } from "./executor.ts";
 import { isTextInputFocused } from "./focus.ts";
@@ -40,7 +41,7 @@ async function init(): Promise<void> {
 
     const overlay = executeAction(binding, video, settings.speedLimits);
     hud.attach(video);
-    if (overlay !== null) hud.flashOverlay(overlay);
+    if (overlay !== null) hud.flashOverlay(t(overlay.key, overlay.subs));
 
     // A bound key always overrides site and browser defaults (§6.3): the
     // capture-phase listener has run first, so stop the rest of the chain.

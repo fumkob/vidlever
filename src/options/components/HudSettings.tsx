@@ -3,6 +3,7 @@
 // sliders (live feedback, can't escape 0–1); duration is a number committed on
 // blur. Values stay within the ranges schema.ts `validateHud` enforces.
 
+import { t } from "../../shared/i18n.ts";
 import type { HudSettings as HudConfig } from "../../shared/types.ts";
 import styles from "../styles.module.css";
 
@@ -19,7 +20,7 @@ export function HudSettings({ value, onChange }: Props) {
   return (
     <div class={styles.grid}>
       <label class={`${styles.field} ${styles.fieldInline}`}>
-        <span class={styles.fieldLabel}>Show HUD</span>
+        <span class={styles.fieldLabel}>{t("optHudShow")}</span>
         <span class={styles.switch}>
           <input
             type="checkbox"
@@ -32,7 +33,7 @@ export function HudSettings({ value, onChange }: Props) {
 
       <label class={styles.field}>
         <span class={styles.fieldLabel}>
-          Resting opacity <b class={styles.rangeVal}>{value.opacityRest.toFixed(2)}</b>
+          {t("optHudOpacityRest")} <b class={styles.rangeVal}>{value.opacityRest.toFixed(2)}</b>
         </span>
         <input
           type="range"
@@ -48,7 +49,7 @@ export function HudSettings({ value, onChange }: Props) {
 
       <label class={styles.field}>
         <span class={styles.fieldLabel}>
-          Hover opacity <b class={styles.rangeVal}>{value.opacityHover.toFixed(2)}</b>
+          {t("optHudOpacityHover")} <b class={styles.rangeVal}>{value.opacityHover.toFixed(2)}</b>
         </span>
         <input
           type="range"
@@ -63,7 +64,7 @@ export function HudSettings({ value, onChange }: Props) {
       </label>
 
       <label class={styles.field}>
-        <span class={styles.fieldLabel}>Overlay duration (ms)</span>
+        <span class={styles.fieldLabel}>{t("optHudDuration")}</span>
         <input
           class={styles.num}
           type="number"

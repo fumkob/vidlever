@@ -5,6 +5,7 @@
 // reordering is a first-class operation here.
 
 import { useState } from "preact/hooks";
+import { t } from "../../shared/i18n.ts";
 import type { Binding } from "../../shared/types.ts";
 import styles from "../styles.module.css";
 import { BindingRow } from "./BindingRow.tsx";
@@ -64,7 +65,7 @@ export function BindingList({ bindings, onChange }: Props) {
   return (
     <div>
       {bindings.length === 0 ? (
-        <p class={styles.empty}>No shortcuts yet — add one to get started.</p>
+        <p class={styles.empty}>{t("optEmptyShortcuts")}</p>
       ) : (
         <ul class={styles.list}>
           {bindings.map((binding, index) => (
@@ -94,7 +95,7 @@ export function BindingList({ bindings, onChange }: Props) {
         class={styles.addBtn}
         onClick={() => onChange([...bindings, newBinding()])}
       >
-        + Add shortcut
+        {t("optAddShortcut")}
       </button>
     </div>
   );

@@ -409,11 +409,14 @@ vidlever/
 ├── docs/
 │   └── design/
 │       └── overview.md           ← this document
-├── public/
-│   └── icons/
-│       ├── icon16.png
-│       ├── icon48.png
-│       └── icon128.png
+├── public/                       ← copied to the extension root at build time
+│   ├── icons/
+│   │   ├── icon16.png
+│   │   ├── icon48.png
+│   │   └── icon128.png
+│   └── _locales/                 ← under public/ so the build ships it (default_locale: en)
+│       └── en/
+│           └── messages.json
 ├── src/
 │   ├── content/
 │   │   ├── index.ts              ← entry; sets up observer, listener, HUD
@@ -438,11 +441,9 @@ vidlever/
 │   │   ├── types.ts              ← Binding, KeyCombo, StoredSettings
 │   │   ├── defaults.ts           ← default bindings, speed limits, hud
 │   │   ├── storage.ts            ← typed wrapper over chrome.storage.sync
-│   │   └── schema.ts             ← runtime validation for import
+│   │   ├── schema.ts             ← runtime validation for import
+│   │   └── i18n.ts               ← typed wrapper over chrome.i18n
 │   └── manifest.json
-├── _locales/
-│   └── en/
-│       └── messages.json
 ├── tests/
 │   ├── resolver.test.ts
 │   ├── executor.test.ts

@@ -4,6 +4,7 @@
 // `key: null` — unbound but retained, so the row's params survive (§6.1).
 
 import { useEffect, useState } from "preact/hooks";
+import { t } from "../../shared/i18n.ts";
 import type { KeyCombo } from "../../shared/types.ts";
 import styles from "../styles.module.css";
 
@@ -78,7 +79,7 @@ export function KeyCapture({ combo, onChange }: Props) {
     return () => window.removeEventListener("keydown", onKey, { capture: true });
   }, [listening, onChange]);
 
-  const label = listening ? "Press a key…" : combo ? formatCombo(combo) : "Unbound";
+  const label = listening ? t("optPressKey") : combo ? formatCombo(combo) : t("optUnbound");
   const btnClass = [
     styles.keyBtn,
     listening ? styles.keyBtnListening : "",
@@ -103,14 +104,14 @@ export function KeyCapture({ combo, onChange }: Props) {
       <button
         type="button"
         class={styles.clearBtn}
-        title="Unbind (keep the row)"
+        title={t("optUnbindTitle")}
         disabled={combo === null && !listening}
         onClick={() => {
           setListening(false);
           onChange(null);
         }}
       >
-        Clear
+        {t("optClear")}
       </button>
     </div>
   );

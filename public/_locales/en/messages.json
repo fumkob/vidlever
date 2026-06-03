@@ -1,0 +1,295 @@
+{
+  "optPageTitle": {
+    "message": "Vidlever — Settings",
+    "description": "Browser tab title for the options page."
+  },
+  "optTagline": {
+    "message": "Keyboard-driven playback control for every HTML5 video. Changes save automatically and sync across every machine signed into your Chrome.",
+    "description": "Subtitle under the app name in the options header."
+  },
+  "optLoading": {
+    "message": "Loading settings…",
+    "description": "Placeholder shown while stored settings are being read."
+  },
+  "optFooter": {
+    "message": "vidlever · settings · schema v$VERSION$",
+    "description": "Footer line of the options page.",
+    "placeholders": {
+      "version": { "content": "$1", "example": "1" }
+    }
+  },
+
+  "optShortcutsTitle": {
+    "message": "Shortcuts",
+    "description": "Title of the key-binding editor section."
+  },
+  "optShortcutsDesc": {
+    "message": "Bindings are matched top to bottom — on duplicate keys the first enabled match wins. Drag a row to change its priority.",
+    "description": "Explanation under the Shortcuts section title."
+  },
+  "optSpeedTitle": {
+    "message": "Speed limits",
+    "description": "Title of the playback-rate limits section."
+  },
+  "optSpeedDesc": {
+    "message": "Bounds and rounding applied after every speed change.",
+    "description": "Explanation under the Speed limits section title."
+  },
+  "optHudTitle": {
+    "message": "HUD",
+    "description": "Title of the on-video HUD settings section."
+  },
+  "optHudDesc": {
+    "message": "The on-video overlay that shows the current speed plus mute and loop state.",
+    "description": "Explanation under the HUD section title."
+  },
+  "optBackupTitle": {
+    "message": "Backup",
+    "description": "Title of the import/export/reset section."
+  },
+  "optBackupDesc": {
+    "message": "Export to a file, import a saved file, or reset everything.",
+    "description": "Explanation under the Backup section title."
+  },
+
+  "optEmptyShortcuts": {
+    "message": "No shortcuts yet — add one to get started.",
+    "description": "Shown when the bindings list is empty."
+  },
+  "optAddShortcut": {
+    "message": "+ Add shortcut",
+    "description": "Button that appends a new, unbound shortcut row."
+  },
+
+  "actionPlayPause": {
+    "message": "Play / Pause",
+    "description": "Action label: toggle playback."
+  },
+  "actionSkipForward": {
+    "message": "Skip forward",
+    "description": "Action label: jump ahead by N seconds."
+  },
+  "actionSkipBackward": {
+    "message": "Skip backward",
+    "description": "Action label: jump back by N seconds."
+  },
+  "actionSpeedDelta": {
+    "message": "Speed by delta",
+    "description": "Action label: change playback rate by a relative amount."
+  },
+  "actionSpeedSet": {
+    "message": "Set speed",
+    "description": "Action label: set playback rate to an absolute value."
+  },
+  "actionMuteToggle": {
+    "message": "Mute / Unmute",
+    "description": "Action label: toggle audio mute."
+  },
+  "actionFullscreenToggle": {
+    "message": "Fullscreen",
+    "description": "Action label: toggle fullscreen."
+  },
+  "actionPipToggle": {
+    "message": "Picture-in-Picture",
+    "description": "Action label: toggle picture-in-picture."
+  },
+  "actionSeekToStart": {
+    "message": "Seek to start",
+    "description": "Action label: jump to the beginning of the video."
+  },
+  "actionSeekToEnd": {
+    "message": "Seek to end",
+    "description": "Action label: jump to the end of the video."
+  },
+  "actionLoopToggle": {
+    "message": "Loop",
+    "description": "Action label: toggle looping."
+  },
+
+  "unitSeconds": {
+    "message": "sec",
+    "description": "Unit suffix for a seconds parameter input."
+  },
+  "unitDelta": {
+    "message": "Δ",
+    "description": "Unit suffix for a relative speed-delta parameter input."
+  },
+  "unitRate": {
+    "message": "×",
+    "description": "Unit suffix for an absolute playback-rate parameter input."
+  },
+
+  "optDragReorder": {
+    "message": "Drag to reorder",
+    "description": "Tooltip / aria-label for the drag handle on a shortcut row."
+  },
+  "optEnabled": {
+    "message": "Enabled",
+    "description": "Tooltip for the enabled state of a shortcut toggle."
+  },
+  "optDisabled": {
+    "message": "Disabled",
+    "description": "Tooltip for the disabled state of a shortcut toggle."
+  },
+  "optDuplicate": {
+    "message": "Duplicate",
+    "description": "Tooltip / aria-label for the duplicate-row button."
+  },
+  "optDelete": {
+    "message": "Delete",
+    "description": "Tooltip / aria-label for the delete-row button."
+  },
+
+  "optPressKey": {
+    "message": "Press a key…",
+    "description": "Shown in the key field while it is listening for a keystroke."
+  },
+  "optUnbound": {
+    "message": "Unbound",
+    "description": "Shown in the key field when no key is assigned."
+  },
+  "optClear": {
+    "message": "Clear",
+    "description": "Button that unbinds a shortcut's key while keeping the row."
+  },
+  "optUnbindTitle": {
+    "message": "Unbind (keep the row)",
+    "description": "Tooltip for the Clear button."
+  },
+
+  "optSpeedMin": {
+    "message": "Minimum rate",
+    "description": "Label for the minimum playback-rate input."
+  },
+  "optSpeedMax": {
+    "message": "Maximum rate",
+    "description": "Label for the maximum playback-rate input."
+  },
+  "optSpeedRounding": {
+    "message": "Rounding",
+    "description": "Label for the playback-rate rounding selector."
+  },
+  "optSpeedDecimals1": {
+    "message": "1 decimal (0.1 steps)",
+    "description": "Rounding option: one decimal place."
+  },
+  "optSpeedDecimals2": {
+    "message": "2 decimals (0.01 steps)",
+    "description": "Rounding option: two decimal places."
+  },
+
+  "optHudShow": {
+    "message": "Show HUD",
+    "description": "Label for the HUD enable toggle."
+  },
+  "optHudOpacityRest": {
+    "message": "Resting opacity",
+    "description": "Label for the resting-opacity slider."
+  },
+  "optHudOpacityHover": {
+    "message": "Hover opacity",
+    "description": "Label for the hover-opacity slider."
+  },
+  "optHudDuration": {
+    "message": "Overlay duration (ms)",
+    "description": "Label for the transient-overlay duration input."
+  },
+
+  "optExport": {
+    "message": "Export",
+    "description": "Button that downloads the current settings as a file."
+  },
+  "optImport": {
+    "message": "Import…",
+    "description": "Button that opens a file picker to import settings."
+  },
+  "optReset": {
+    "message": "Reset to defaults",
+    "description": "Button that overwrites all settings with the shipped defaults."
+  },
+  "optExported": {
+    "message": "Exported $FILENAME$.",
+    "description": "Success message after exporting settings.",
+    "placeholders": {
+      "filename": { "content": "$1", "example": "vidlever-settings.json" }
+    }
+  },
+  "optErrInvalidJson": {
+    "message": "That file isn't valid JSON.",
+    "description": "Error shown when an imported file cannot be parsed as JSON."
+  },
+  "optErrInvalidSettings": {
+    "message": "Invalid settings file: $ERROR$",
+    "description": "Error shown when an imported file fails schema validation.",
+    "placeholders": {
+      "error": { "content": "$1", "example": "bindings must be an array" }
+    }
+  },
+  "optImported": {
+    "message": "Settings imported.",
+    "description": "Success message after importing settings."
+  },
+  "optResetConfirm": {
+    "message": "Reset all settings to defaults? This overwrites your current shortcuts, speed limits, and HUD configuration.",
+    "description": "Confirmation prompt before resetting all settings."
+  },
+  "optResetDone": {
+    "message": "Settings reset to defaults.",
+    "description": "Success message after resetting settings."
+  },
+
+  "hudPlay": {
+    "message": "▶ Play",
+    "description": "HUD overlay flashed when playback starts."
+  },
+  "hudPause": {
+    "message": "⏸ Pause",
+    "description": "HUD overlay flashed when playback pauses."
+  },
+  "hudSkipForward": {
+    "message": "⏩ +$SECONDS$s",
+    "description": "HUD overlay flashed when skipping forward.",
+    "placeholders": {
+      "seconds": { "content": "$1", "example": "10" }
+    }
+  },
+  "hudSkipBackward": {
+    "message": "⏪ −$SECONDS$s",
+    "description": "HUD overlay flashed when skipping backward.",
+    "placeholders": {
+      "seconds": { "content": "$1", "example": "10" }
+    }
+  },
+  "hudMuted": {
+    "message": "🔇 Muted",
+    "description": "HUD overlay flashed when audio is muted."
+  },
+  "hudUnmuted": {
+    "message": "🔊 Unmuted",
+    "description": "HUD overlay flashed when audio is unmuted."
+  },
+  "hudPipOn": {
+    "message": "PiP On",
+    "description": "HUD overlay flashed when picture-in-picture turns on."
+  },
+  "hudPipOff": {
+    "message": "PiP Off",
+    "description": "HUD overlay flashed when picture-in-picture turns off."
+  },
+  "hudSeekStart": {
+    "message": "⏮ Start",
+    "description": "HUD overlay flashed when seeking to the start."
+  },
+  "hudSeekEnd": {
+    "message": "⏭ End",
+    "description": "HUD overlay flashed when seeking to the end."
+  },
+  "hudLoopOn": {
+    "message": "🔁 Loop On",
+    "description": "HUD overlay flashed when looping turns on."
+  },
+  "hudLoopOff": {
+    "message": "Loop Off",
+    "description": "HUD overlay flashed when looping turns off."
+  }
+}

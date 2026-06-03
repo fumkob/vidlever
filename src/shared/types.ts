@@ -68,6 +68,9 @@ export const ACTION_PARAM_FIELD = {
   loopToggle: null,
 } as const satisfies { [A in ActionType]: ParamFieldOf<A> };
 
+/** The numeric param fields an action can carry — the non-null values above. */
+export type ParamField = NonNullable<(typeof ACTION_PARAM_FIELD)[ActionType]>;
+
 /**
  * One user-editable rule mapping a key combo to an action.
  * `key: null` keeps the entry inert but preserved; `enabled: false`

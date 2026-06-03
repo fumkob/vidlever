@@ -4,6 +4,7 @@
 // Reset confirms first, then overwrites with shipped defaults.
 
 import { useRef, useState } from "preact/hooks";
+import { t } from "../../shared/i18n.ts";
 import { parseSettings } from "../../shared/schema.ts";
 import type { StoredSettings } from "../../shared/types.ts";
 import styles from "../styles.module.css";
@@ -32,7 +33,7 @@ export function ImportExport({ settings, onImport, onReset }: Props) {
     a.download = EXPORT_FILENAME;
     a.click();
     URL.revokeObjectURL(url);
-    setMessage({ kind: "success", text: `Exported ${EXPORT_FILENAME}.` });
+    setMessage({ kind: "success", text: t("optExported", [EXPORT_FILENAME]) });
   }
 
   async function importFile(input: HTMLInputElement): Promise<void> {
@@ -45,39 +46,37 @@ export function ImportExport({ settings, onImport, onReset }: Props) {
     try {
       data = JSON.parse(await file.text());
     } catch {
-      setMessage({ kind: "error", text: "That file isn't valid JSON." });
+      setMessage({ kind: "error", text: t("optErrInvalidJson") });
       return;
     }
 
     const result = parseSettings(data);
     if (!result.ok) {
-      setMessage({ kind: "error", text: `Invalid settings file: ${result.error}` });
+      setMessage({ kind: "error", text: t("optErrInvalidSettings", [result.error]) });
       return;
     }
     onImport(result.value);
-    setMessage({ kind: "success", text: "Settings imported." });
+    setMessage({ kind: "success", text: t("optImported") });
   }
 
   function reset(): void {
-    const ok = window.confirm(
-      "Reset all settings to defaults? This overwrites your current shortcuts, speed limits, and HUD configuration.",
-    );
+    const ok = window.confirm(t("optResetConfirm"));
     if (!ok) return;
     onReset();
-    setMessage({ kind: "success", text: "Settings reset to defaults." });
+    setMessage({ kind: "success", text: t("optResetDone") });
   }
 
   return (
     <div>
       <div class={styles.btnRow}>
         <button type="button" class={styles.btn} onClick={exportSettings}>
-          Export
+          {t("optExport")}
         </button>
         <button type="button" class={styles.btn} onClick={() => fileInput.current?.click()}>
-          Import…
+          {t("optImport")}
         </button>
         <button type="button" class={`${styles.btn} ${styles.btnDanger}`} onClick={reset}>
-          Reset to defaults
+          {t("optReset")}
         </button>
         <input
           ref={fileInput}

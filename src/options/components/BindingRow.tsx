@@ -5,7 +5,9 @@
 // each action carries its own (or no) params, so the transforms below are
 // written as exhaustive switches that the type checker keeps honest.
 
-import type { ActionType, Binding } from "../../shared/types.ts";
+import type { MessageKey } from "../../shared/i18n.ts";
+import { t } from "../../shared/i18n.ts";
+import type { ActionType, Binding, ParamField } from "../../shared/types.ts";
 import { ACTION_PARAM_FIELD } from "../../shared/types.ts";
 import styles from "../styles.module.css";
 import { KeyCapture } from "./KeyCapture.tsx";
@@ -24,32 +26,33 @@ type Props = {
 };
 
 /**
- * Action labels and <select> order in one place. The `Record<ActionType, …>`
+ * Action i18n keys and <select> order in one place. The `Record<ActionType, …>`
  * makes the compiler require an entry for every action, and the declaration
  * order doubles as the dropdown order (insertion order is preserved for string
- * keys), so there is no separate list to keep in sync (§6.2).
+ * keys), so there is no separate list to keep in sync (§6.2). The labels
+ * themselves live in messages.json and are resolved at render via `t()`.
  */
-const ACTION_LABELS: Record<ActionType, string> = {
-  playPause: "Play / Pause",
-  skipForward: "Skip forward",
-  skipBackward: "Skip backward",
-  speedDelta: "Speed by delta",
-  speedSet: "Set speed",
-  muteToggle: "Mute / Unmute",
-  fullscreenToggle: "Fullscreen",
-  pipToggle: "Picture-in-Picture",
-  seekToStart: "Seek to start",
-  seekToEnd: "Seek to end",
-  loopToggle: "Loop",
+const ACTION_LABEL_KEYS: Record<ActionType, MessageKey> = {
+  playPause: "actionPlayPause",
+  skipForward: "actionSkipForward",
+  skipBackward: "actionSkipBackward",
+  speedDelta: "actionSpeedDelta",
+  speedSet: "actionSpeedSet",
+  muteToggle: "actionMuteToggle",
+  fullscreenToggle: "actionFullscreenToggle",
+  pipToggle: "actionPipToggle",
+  seekToStart: "actionSeekToStart",
+  seekToEnd: "actionSeekToEnd",
+  loopToggle: "actionLoopToggle",
 };
 
-const ACTION_ORDER = Object.keys(ACTION_LABELS) as ActionType[];
+const ACTION_ORDER = Object.keys(ACTION_LABEL_KEYS) as ActionType[];
 
-/** Suffix shown after a param input, keyed by the action's param field. */
-const PARAM_UNIT: Record<"seconds" | "delta" | "rate", string> = {
-  seconds: "sec",
-  delta: "Δ",
-  rate: "×",
+/** Suffix i18n key shown after a param input, keyed by the action's param field. */
+const PARAM_UNIT_KEYS: Record<ParamField, MessageKey> = {
+  seconds: "unitSeconds",
+  delta: "unitDelta",
+  rate: "unitRate",
 };
 
 /** The single numeric param a binding carries, or null for param-less actions. */
@@ -156,8 +159,8 @@ export function BindingRow({
       <button
         type="button"
         class={styles.handle}
-        title="Drag to reorder"
-        aria-label="Drag to reorder"
+        title={t("optDragReorder")}
+        aria-label={t("optDragReorder")}
         draggable
         onDragStart={(e) => {
           e.dataTransfer?.setData("text/plain", binding.id);
@@ -168,7 +171,7 @@ export function BindingRow({
         ⠿
       </button>
 
-      <label class={styles.switch} title={binding.enabled ? "Enabled" : "Disabled"}>
+      <label class={styles.switch} title={binding.enabled ? t("optEnabled") : t("optDisabled")}>
         <input
           type="checkbox"
           checked={binding.enabled}
@@ -184,7 +187,7 @@ export function BindingRow({
       >
         {ACTION_ORDER.map((a) => (
           <option key={a} value={a}>
-            {ACTION_LABELS[a]}
+            {t(ACTION_LABEL_KEYS[a])}
           </option>
         ))}
       </select>
@@ -201,7 +204,7 @@ export function BindingRow({
               if (Number.isFinite(n)) onChange(setParamValue(binding, n));
             }}
           />
-          <span class={styles.unit}>{PARAM_UNIT[paramField]}</span>
+          <span class={styles.unit}>{t(PARAM_UNIT_KEYS[paramField])}</span>
         </label>
       ) : (
         <span class={styles.paramSpacer} />
@@ -212,8 +215,8 @@ export function BindingRow({
       <button
         type="button"
         class={styles.iconBtn}
-        title="Duplicate"
-        aria-label="Duplicate"
+        title={t("optDuplicate")}
+        aria-label={t("optDuplicate")}
         onClick={onDuplicate}
       >
         ⧉
@@ -221,8 +224,8 @@ export function BindingRow({
       <button
         type="button"
         class={`${styles.iconBtn} ${styles.danger}`}
-        title="Delete"
-        aria-label="Delete"
+        title={t("optDelete")}
+        aria-label={t("optDelete")}
         onClick={onDelete}
       >
         🗑

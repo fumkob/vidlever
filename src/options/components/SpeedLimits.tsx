@@ -4,6 +4,7 @@
 // than every keystroke avoids fighting the user mid-edit when a value is briefly
 // out of range. See schema.ts `validateSpeedLimits`.
 
+import { t } from "../../shared/i18n.ts";
 import type { SpeedLimits as SpeedLimitsConfig } from "../../shared/types.ts";
 import styles from "../styles.module.css";
 
@@ -31,7 +32,7 @@ export function SpeedLimits({ value, onChange }: Props) {
   return (
     <div class={styles.grid}>
       <label class={styles.field}>
-        <span class={styles.fieldLabel}>Minimum rate</span>
+        <span class={styles.fieldLabel}>{t("optSpeedMin")}</span>
         <input
           class={styles.num}
           type="number"
@@ -43,7 +44,7 @@ export function SpeedLimits({ value, onChange }: Props) {
       </label>
 
       <label class={styles.field}>
-        <span class={styles.fieldLabel}>Maximum rate</span>
+        <span class={styles.fieldLabel}>{t("optSpeedMax")}</span>
         <input
           class={styles.num}
           type="number"
@@ -55,14 +56,14 @@ export function SpeedLimits({ value, onChange }: Props) {
       </label>
 
       <label class={styles.field}>
-        <span class={styles.fieldLabel}>Rounding</span>
+        <span class={styles.fieldLabel}>{t("optSpeedRounding")}</span>
         <select
           class={styles.select}
           value={String(value.decimals)}
           onChange={(e) => onChange({ ...value, decimals: e.currentTarget.value === "1" ? 1 : 2 })}
         >
-          <option value="1">1 decimal (0.1 steps)</option>
-          <option value="2">2 decimals (0.01 steps)</option>
+          <option value="1">{t("optSpeedDecimals1")}</option>
+          <option value="2">{t("optSpeedDecimals2")}</option>
         </select>
       </label>
     </div>
