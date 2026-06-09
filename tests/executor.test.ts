@@ -197,6 +197,65 @@ describe("speedDelta / speedSet (clamp + round, §7)", () => {
   });
 });
 
+describe("speedSet toggle (overview.md §7)", () => {
+  const reset = bind({ action: "speedSet", params: { rate: 1.0 } });
+
+  it("toggles back to the replaced rate, then forward to the target again", () => {
+    const video = makeVideo({ playbackRate: 1.5 });
+    executeAction(reset, video, LIMITS); // 1.5 → 1.0 (remembers 1.5)
+    expect(video.playbackRate).toBe(1.0);
+    executeAction(reset, video, LIMITS); // 1.0 → 1.5 (restores)
+    expect(video.playbackRate).toBe(1.5);
+    executeAction(reset, video, LIMITS); // 1.5 → 1.0 again
+    expect(video.playbackRate).toBe(1.0);
+    executeAction(reset, video, LIMITS); // 1.0 → 1.5 again
+    expect(video.playbackRate).toBe(1.5);
+  });
+
+  it("is a no-op when already at the target with nothing to restore", () => {
+    const video = makeVideo({ playbackRate: 1.0 });
+    const overlay = executeAction(reset, video, LIMITS);
+    expect(video.playbackRate).toBe(1.0);
+    expect(overlay).toBeNull();
+  });
+
+  it("re-captures the latest rate when toggled from a freshly changed speed", () => {
+    const video = makeVideo({ playbackRate: 1.5 });
+    executeAction(reset, video, LIMITS); // 1.5 → 1.0
+    executeAction(bind({ action: "speedSet", params: { rate: 2.0 } }), video, LIMITS);
+    expect(video.playbackRate).toBe(2.0);
+    executeAction(reset, video, LIMITS); // 2.0 → 1.0 (remembers 2.0, not the stale 1.5)
+    expect(video.playbackRate).toBe(1.0);
+    executeAction(reset, video, LIMITS); // 1.0 → 2.0
+    expect(video.playbackRate).toBe(2.0);
+  });
+
+  it("toggles correctly when the target rate is out of range (clamped)", () => {
+    // rate 10 clamps to max 4.0. The toggle must compare/remember the resolved
+    // (clamped) rate, not the raw target — otherwise the live rate (4.0) never
+    // equals the raw target (10) and the restore branch is unreachable.
+    const over = bind({ action: "speedSet", params: { rate: 10 } });
+    const video = makeVideo({ playbackRate: 1.5 });
+    executeAction(over, video, LIMITS); // 1.5 → 4.0 (remembers 1.5)
+    expect(video.playbackRate).toBe(4.0);
+    executeAction(over, video, LIMITS); // at clamped target → restore 1.5
+    expect(video.playbackRate).toBe(1.5);
+    executeAction(over, video, LIMITS); // 1.5 → 4.0 again
+    expect(video.playbackRate).toBe(4.0);
+  });
+
+  it("remembers the replaced rate independently per video", () => {
+    const a = makeVideo({ playbackRate: 1.5 });
+    const b = makeVideo({ playbackRate: 3.0 });
+    executeAction(reset, a, LIMITS); // a: 1.5 → 1.0
+    executeAction(reset, b, LIMITS); // b: 3.0 → 1.0
+    executeAction(reset, a, LIMITS); // a: → 1.5
+    executeAction(reset, b, LIMITS); // b: → 3.0
+    expect(a.playbackRate).toBe(1.5);
+    expect(b.playbackRate).toBe(3.0);
+  });
+});
+
 describe("muteToggle", () => {
   it("mutes and reports hudMuted when unmuted", () => {
     const video = makeVideo({ muted: false });

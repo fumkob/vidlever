@@ -46,7 +46,7 @@ The following **action types** are supported. Each action type can be bound to a
 | `skipForward` | `seconds: number` | Advance `currentTime` by N seconds. |
 | `skipBackward` | `seconds: number` | Rewind `currentTime` by N seconds. |
 | `speedDelta` | `delta: number` | Adjust `playbackRate` by `delta` (e.g., `+0.1`, `-0.1`). |
-| `speedSet` | `rate: number` | Set `playbackRate` to an exact value (typically used for "reset to 1.0×"). |
+| `speedSet` | `rate: number` | Set `playbackRate` to an exact value (typically "reset to 1.0×"). Toggles: pressing again while already at `rate` restores the previous rate, and once more returns to `rate`. |
 | `muteToggle` | — | Toggle `muted`. |
 | `fullscreenToggle` | — | Enter / exit fullscreen on the target video element. |
 | `pipToggle` | — | Enter / exit Picture-in-Picture. |
@@ -188,6 +188,12 @@ After every `speedDelta` / `speedSet` operation:
 const next = Math.round((current + delta) * 10 ** decimals) / 10 ** decimals;
 video.playbackRate = Math.min(Math.max(next, limits.min), limits.max);
 ```
+
+`speedSet` additionally **toggles**: it remembers (per video) the rate it
+replaced, so firing the same key again while already at `rate` restores that
+remembered rate, and firing once more returns to `rate`. Pressing the key from
+yet another speed re-captures that speed as the new restore point. Already at
+`rate` with nothing remembered (e.g. the very first press at 1.0×) is a no-op.
 
 ## 8. HUD (Heads-Up Display)
 
