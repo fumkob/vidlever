@@ -11,6 +11,10 @@
     "message": "Loading settings…",
     "description": "Placeholder shown while stored settings are being read."
   },
+  "optLoadError": {
+    "message": "Couldn't load settings. Reopen this page to try again.",
+    "description": "Shown when reading stored settings fails so the page doesn't hang on the loading placeholder."
+  },
   "optFooter": {
     "message": "vidlever · settings · schema v$VERSION$",
     "description": "Footer line of the options page.",

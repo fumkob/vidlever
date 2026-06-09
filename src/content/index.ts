@@ -114,10 +114,15 @@ async function init(): Promise<void> {
   // device. Reloading the whole object is the simplest always-correct approach.
   chrome.storage.onChanged.addListener((_changes, areaName) => {
     if (areaName !== "sync") return;
-    void loadSettings().then((next) => {
-      settings = next;
-      hud?.setSettings(next.hud);
-    });
+    // If the re-read fails (e.g. storage briefly unavailable), keep the current
+    // settings and stay quiet — matches init()'s catch — rather than logging an
+    // unhandled rejection.
+    void loadSettings()
+      .then((next) => {
+        settings = next;
+        hud?.setSettings(next.hud);
+      })
+      .catch(() => {});
   });
 }
 

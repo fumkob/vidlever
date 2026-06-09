@@ -20,13 +20,18 @@ const SAVE_DEBOUNCE_MS = 300;
 
 export function App() {
   const [settings, setSettings] = useState<StoredSettings | null>(null);
+  // Distinguishes "still reading" (null) from "read failed" so the page can
+  // show an error instead of hanging on the loading placeholder forever.
+  const [loadFailed, setLoadFailed] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // The most recent edit still waiting out the debounce, so it can be flushed
   // if the page is hidden/closed before the timer fires.
   const pending = useRef<StoredSettings | null>(null);
 
   useEffect(() => {
-    void loadSettings().then(setSettings);
+    // chrome.storage can reject (e.g. extension context invalidated after a
+    // reload); surface that rather than leaving the page stuck loading.
+    void loadSettings().then(setSettings, () => setLoadFailed(true));
 
     // Closing or switching away from the options tab fires visibilitychange but
     // not a Preact unmount, so a pending debounced edit would be lost. Persist
@@ -73,6 +78,9 @@ export function App() {
     }, SAVE_DEBOUNCE_MS);
   }
 
+  if (loadFailed) {
+    return <div class={styles.loading}>{t("optLoadError")}</div>;
+  }
   if (settings === null) {
     return <div class={styles.loading}>{t("optLoading")}</div>;
   }
