@@ -3,6 +3,7 @@
 // sliders (live feedback, can't escape 0–1); duration is a number committed on
 // blur. Values stay within the ranges schema.ts `validateHud` enforces.
 
+import type { MessageKey } from "../../shared/i18n.ts";
 import { t } from "../../shared/i18n.ts";
 import type { HudSettings as HudConfig } from "../../shared/types.ts";
 import styles from "../styles.module.css";
@@ -14,6 +15,33 @@ type Props = {
 
 function clamp01(n: number): number {
   return Math.min(1, Math.max(0, n));
+}
+
+/** A 0–1 opacity slider with a live readout; the two HUD opacities share it. */
+function OpacitySlider({
+  labelKey,
+  current,
+  onChange,
+}: {
+  labelKey: MessageKey;
+  current: number;
+  onChange: (n: number) => void;
+}) {
+  return (
+    <label class={styles.field}>
+      <span class={styles.fieldLabel}>
+        {t(labelKey)} <b class={styles.rangeVal}>{current.toFixed(2)}</b>
+      </span>
+      <input
+        type="range"
+        min={0}
+        max={1}
+        step={0.05}
+        value={current}
+        onInput={(e) => onChange(clamp01(e.currentTarget.valueAsNumber))}
+      />
+    </label>
+  );
 }
 
 export function HudSettings({ value, onChange }: Props) {
@@ -31,37 +59,17 @@ export function HudSettings({ value, onChange }: Props) {
         </span>
       </label>
 
-      <label class={styles.field}>
-        <span class={styles.fieldLabel}>
-          {t("optHudOpacityRest")} <b class={styles.rangeVal}>{value.opacityRest.toFixed(2)}</b>
-        </span>
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.05}
-          value={value.opacityRest}
-          onInput={(e) =>
-            onChange({ ...value, opacityRest: clamp01(e.currentTarget.valueAsNumber) })
-          }
-        />
-      </label>
+      <OpacitySlider
+        labelKey="optHudOpacityRest"
+        current={value.opacityRest}
+        onChange={(n) => onChange({ ...value, opacityRest: n })}
+      />
 
-      <label class={styles.field}>
-        <span class={styles.fieldLabel}>
-          {t("optHudOpacityHover")} <b class={styles.rangeVal}>{value.opacityHover.toFixed(2)}</b>
-        </span>
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.05}
-          value={value.opacityHover}
-          onInput={(e) =>
-            onChange({ ...value, opacityHover: clamp01(e.currentTarget.valueAsNumber) })
-          }
-        />
-      </label>
+      <OpacitySlider
+        labelKey="optHudOpacityHover"
+        current={value.opacityHover}
+        onChange={(n) => onChange({ ...value, opacityHover: n })}
+      />
 
       <label class={styles.field}>
         <span class={styles.fieldLabel}>{t("optHudDuration")}</span>
