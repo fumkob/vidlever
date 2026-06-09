@@ -77,7 +77,12 @@ export function executeAction(
       if (document.fullscreenElement) {
         void document.exitFullscreen().catch(() => {});
       } else {
-        void video.requestFullscreen().catch(() => {});
+        // Fullscreen the video's wrapper, not the bare <video>. A <video> is a
+        // replaced element, so the HUD reparented into it (hud.ts mount) can't
+        // render as a child and the overlay vanishes in fullscreen. The wrapper
+        // still fills the screen with the video but can host the HUD.
+        const target = video.parentElement ?? video;
+        void target.requestFullscreen().catch(() => {});
       }
       return null;
     }
