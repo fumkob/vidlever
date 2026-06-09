@@ -61,7 +61,7 @@ export class Hud {
       "color: #ffffff",
       "font-family: ui-sans-serif, system-ui, -apple-system, sans-serif",
       "font-size: 14px",
-      "font-weight: 600",
+      "font-weight: 400",
       "line-height: 1.2",
       "white-space: nowrap",
       "pointer-events: none", // never intercept clicks; keeps video hover intact
