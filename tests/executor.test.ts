@@ -214,7 +214,19 @@ describe("muteToggle", () => {
 });
 
 describe("fullscreenToggle", () => {
-  it("requests fullscreen on the video when none is active", () => {
+  it("requests fullscreen on the wrapper so the HUD overlay stays renderable", () => {
+    const wrapper = document.createElement("div");
+    wrapper.requestFullscreen = vi.fn(() => Promise.resolve());
+    const video = makeVideo();
+    wrapper.appendChild(video);
+    const overlay = executeAction(bind({ action: "fullscreenToggle" }), video, LIMITS);
+    expect(wrapper.requestFullscreen).toHaveBeenCalledOnce();
+    expect(video.requestFullscreen).not.toHaveBeenCalled();
+    expect(document.exitFullscreen).not.toHaveBeenCalled();
+    expect(overlay).toBeNull();
+  });
+
+  it("falls back to the video itself when it has no parent element", () => {
     const video = makeVideo();
     const overlay = executeAction(bind({ action: "fullscreenToggle" }), video, LIMITS);
     expect(video.requestFullscreen).toHaveBeenCalledOnce();
