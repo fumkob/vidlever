@@ -88,6 +88,11 @@ export class Hud {
     this.hovered = false;
     this.applyOpacity();
     this.mount();
+    // Re-sync the top layer: fullscreenchange only fires on transitions, so a
+    // video swapped in while already fullscreen (e.g. ad↔content under a site's
+    // native fullscreen) would otherwise leave the HUD in normal flow, painted
+    // behind the fullscreened element. Idempotent — a no-op when not fullscreen.
+    this.setTopLayer(document.fullscreenElement !== null);
     this.startLoop();
   }
 
@@ -97,6 +102,7 @@ export class Hud {
     this.video = null;
     this.stopLoop();
     this.clearOverlayTimer();
+    this.setTopLayer(false);
     this.root.style.display = "none";
     this.lastVisible = false;
   }
@@ -145,10 +151,39 @@ export class Hud {
     this.applyOpacity();
   };
 
-  // Reparent into the fullscreen element so the HUD stays visible (§8.2).
   private readonly onFullscreenChange = (): void => {
-    this.mount();
+    this.setTopLayer(document.fullscreenElement !== null);
   };
+
+  // Keep the HUD visible over a fullscreened video (§8.2). The browser only
+  // paints the fullscreen element's subtree, so a body-mounted HUD would vanish.
+  // Instead we float it into the top layer via the Popover API, which paints
+  // over the fullscreened video even when the target is the bare <video>
+  // element (a replaced element that can't host rendered children).
+  //
+  // `popover="manual"` opts out of light dismiss and focus management, so it
+  // never steals interaction from the page. Idempotent: enters or exits the
+  // top layer only when the current state differs from `active`.
+  private setTopLayer(active: boolean): void {
+    const open = this.root.matches(":popover-open");
+    if (active && !open) {
+      this.root.setAttribute("popover", "manual");
+      try {
+        this.root.showPopover();
+      } catch {
+        // Element not connected — leave it in normal flow.
+      }
+    } else if (!active && open) {
+      try {
+        this.root.hidePopover();
+      } catch {
+        // Already hidden; nothing to do.
+      }
+      this.root.removeAttribute("popover");
+    }
+    // Re-evaluate display on the next frame now that the layer changed.
+    this.lastVisible = null;
+  }
 
   private applyOpacity(): void {
     const target = this.hovered ? this.settings.opacityHover : this.settings.opacityRest;
@@ -156,9 +191,10 @@ export class Hud {
   }
 
   private mount(): void {
-    const host = document.fullscreenElement ?? document.body;
-    if (this.root.parentNode !== host) {
-      host.appendChild(this.root);
+    // The HUD always lives in body; it rides the top layer for fullscreen
+    // (see onFullscreenChange / setTopLayer) rather than being reparented.
+    if (this.root.parentNode !== document.body) {
+      document.body.appendChild(this.root);
     }
   }
 

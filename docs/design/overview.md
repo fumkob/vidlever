@@ -48,7 +48,7 @@ The following **action types** are supported. Each action type can be bound to a
 | `speedDelta` | `delta: number` | Adjust `playbackRate` by `delta` (e.g., `+0.1`, `-0.1`). |
 | `speedSet` | `rate: number` | Set `playbackRate` to an exact value (typically used for "reset to 1.0×"). |
 | `muteToggle` | — | Toggle `muted`. |
-| `fullscreenToggle` | — | Enter / exit fullscreen. Targets the video's wrapper element (falling back to the video itself) so the HUD overlay can render on top in fullscreen; a bare `<video>` is a replaced element and can't host the HUD. |
+| `fullscreenToggle` | — | Enter / exit fullscreen on the target video element. |
 | `pipToggle` | — | Enter / exit Picture-in-Picture. |
 | `seekToStart` | — | Jump to `currentTime = 0`. |
 | `seekToEnd` | — | Jump to `currentTime = duration`. |
