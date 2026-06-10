@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Verify tag matches package.json and manifest versions
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          # Chrome manifests only accept plain X.Y.Z, so prerelease tags like
+          # v1.0.0-beta.1 are compared against the base version 1.0.0.
+          TAG_VERSION="${TAG#v}"
+          BASE_VERSION="${TAG_VERSION%%-*}"
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          MANIFEST_VERSION="$(node -p "require('./src/manifest.json').version")"
+          echo "tag=$TAG_VERSION base=$BASE_VERSION package.json=$PKG_VERSION manifest=$MANIFEST_VERSION"
+          if [ "$BASE_VERSION" != "$PKG_VERSION" ] || [ "$BASE_VERSION" != "$MANIFEST_VERSION" ]; then
+            echo "::error::Version mismatch — tag (minus prerelease suffix), package.json, and src/manifest.json must all agree."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Package dist
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          cd dist
+          zip -r "../vidlever-${TAG}.zip" .
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          PRERELEASE_FLAG=""
+          case "$TAG" in
+            *-*) PRERELEASE_FLAG="--prerelease" ;;
+          esac
+          gh release create "$TAG" "vidlever-${TAG}.zip" \
+            --title "$TAG" \
+            --generate-notes \
+            $PRERELEASE_FLAG
