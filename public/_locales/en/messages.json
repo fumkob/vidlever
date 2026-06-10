@@ -295,5 +295,26 @@
   "hudLoopOff": {
     "message": "Loop Off",
     "description": "HUD overlay flashed when looping turns off."
+  },
+
+  "speedPanelToggle": {
+    "message": "Playback speed controls",
+    "description": "Accessible label for the HUD pill button that opens the speed panel. Deliberately NOT hud-prefixed: hud* keys form the transient-overlay union (HudMessageKey), and panel labels must stay out of it."
+  },
+  "speedPanelNormal": {
+    "message": "Normal",
+    "description": "Caption under the 1.0 preset button in the HUD speed panel."
+  },
+  "speedPanelDecrease": {
+    "message": "Decrease playback speed",
+    "description": "Accessible label for the − stepper button in the HUD speed panel."
+  },
+  "speedPanelIncrease": {
+    "message": "Increase playback speed",
+    "description": "Accessible label for the + stepper button in the HUD speed panel."
+  },
+  "speedPanelSlider": {
+    "message": "Playback speed",
+    "description": "Accessible label for the speed slider in the HUD speed panel."
   }
 }

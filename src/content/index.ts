@@ -46,6 +46,10 @@ async function init(): Promise<void> {
     if (!settings) return null; // settings not loaded yet
     // Typing into a field → do nothing at all, not even preventDefault (§6.3).
     if (isTextInputFocused()) return null;
+    // Keys aimed at the HUD's own widgets (focused pill, the speed panel's
+    // slider/buttons) keep their native behavior — intercepting them would
+    // hijack Space/arrows from controls the extension itself rendered (§8.6).
+    if (event.target instanceof Node && hud?.containsNode(event.target)) return null;
     const binding = matchBinding(settings.bindings, event);
     if (!binding) return null; // unbound key: let the site/browser handle it
     const video = resolveTargetVideo();
@@ -85,7 +89,7 @@ async function init(): Promise<void> {
   window.addEventListener("keyup", onFollowUp, { capture: true });
 
   settings = await loadSettings();
-  hud = new Hud(settings.hud);
+  hud = new Hud(settings.hud, settings.speedLimits);
 
   /** Point the HUD at the current target video, or park it if none remain. */
   function refreshTarget(): void {
@@ -122,7 +126,7 @@ async function init(): Promise<void> {
     void loadSettings()
       .then((next) => {
         settings = next;
-        hud?.setSettings(next.hud);
+        hud?.setSettings(next.hud, next.speedLimits);
       })
       .catch(() => {});
   });

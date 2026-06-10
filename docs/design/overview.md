@@ -242,6 +242,18 @@ If a second action fires while an overlay is showing, the new overlay replaces i
 
 A global `hud.enabled` boolean in settings (default `true`) hides the HUD entirely when set to `false`.
 
+### 8.6 Speed panel
+
+Tapping the HUD pill (or focusing it and pressing Enter/Space — the pill is a focusable `role="button"`) opens a speed panel anchored below it:
+
+1. **Live rate readout** — large, always the current rate; never borrowed for transient overlays.
+2. **− / slider / + row** — the slider spans `speedLimits.min`–`max` (`step: any`, so the thumb can render any actual rate); the steppers move one tactile notch (0.1 for 1-decimal rounding, 0.05 for 2).
+3. **Preset buttons** — candidates `1.0 / 1.25 / 1.5 / 2.0 / 3.0`; any candidate that does not survive the §7 grid/clamp unchanged is hidden. The preset matching the current resolved rate is highlighted.
+
+Every panel-driven change resolves through the same §7 grid as keyboard actions. The panel closes on an outside press, when the HUD hides, and when the target video changes.
+
+**Interaction trade-off**: making the pill tappable means the HUD is no longer `pointer-events: none` — over its small footprint (top-left, 16 px inset) it intercepts clicks, hover, and wheel that previously fell through to the video and site controls beneath, and hover-driven site UI sees `mouseleave` while the pointer rests on it. Keys pressed while focus is inside the HUD are **not** intercepted as shortcuts (§6.3), so the panel's native widgets stay keyboard-operable.
+
 ## 9. Settings & Storage
 
 ### 9.1 Storage backend
