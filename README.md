@@ -1,5 +1,10 @@
 # Vidlever
 
+[![CI](https://github.com/fumkob/vidlever/actions/workflows/ci.yml/badge.svg)](https://github.com/fumkob/vidlever/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/fumkob/vidlever)](https://github.com/fumkob/vidlever/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Chrome](https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?logo=googlechrome&logoColor=white)](#install-unpacked)
+
 Keyboard-driven playback control for **every** HTML5 `<video>` on the web — a Chrome extension (Manifest V3).
 
 Play/pause, seek, change speed, mute, fullscreen, Picture-in-Picture, and loop any video with one consistent set of shortcuts, no matter which site you're on. Bindings are fully customizable and sync across machines via `chrome.storage.sync`.
@@ -116,4 +121,6 @@ To set up a second machine: clone the repo, place your `vidlever-key.pem` at the
 
 ## License
 
-[MIT](LICENSE) © Fumiaki Kobayashi
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+MIT License © 2026
