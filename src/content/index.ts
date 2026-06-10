@@ -21,8 +21,8 @@
 // Runs in every frame (all_frames); each frame operates only on its own videos.
 
 import { t } from "../shared/i18n.ts";
-import type { Binding, StoredSettings } from "../shared/types.ts";
 import { loadSettings } from "../shared/storage.ts";
+import type { Binding, StoredSettings } from "../shared/types.ts";
 import { executeAction } from "./executor.ts";
 import { isTextInputFocused } from "./focus.ts";
 import { Hud } from "./hud.ts";
@@ -40,7 +40,9 @@ async function init(): Promise<void> {
    * pass through. Shared by keydown (which acts) and keyup/keypress (which only
    * suppress), so all three make the identical intercept decision.
    */
-  function intercepted(event: KeyboardEvent): { binding: Binding; video: HTMLVideoElement } | null {
+  function intercepted(
+    event: KeyboardEvent,
+  ): { binding: Binding; video: HTMLVideoElement; settings: StoredSettings } | null {
     if (!settings) return null; // settings not loaded yet
     // Typing into a field → do nothing at all, not even preventDefault (§6.3).
     if (isTextInputFocused()) return null;
@@ -48,14 +50,14 @@ async function init(): Promise<void> {
     if (!binding) return null; // unbound key: let the site/browser handle it
     const video = resolveTargetVideo();
     if (!video) return null; // nothing to control: let the key through
-    return { binding, video };
+    return { binding, video, settings };
   }
 
   function onKeydown(event: KeyboardEvent): void {
     const hit = intercepted(event);
     if (!hit) return;
 
-    const overlay = executeAction(hit.binding, hit.video, settings!.speedLimits);
+    const overlay = executeAction(hit.binding, hit.video, hit.settings.speedLimits);
     hud?.attach(hit.video);
     if (overlay !== null) hud?.flashOverlay(t(overlay.key, overlay.subs));
 
