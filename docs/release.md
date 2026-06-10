@@ -20,7 +20,7 @@ users load as an unpacked extension (see docs/design/overview.md §12–§13).
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
 | `.github/workflows/ci.yml` | push / PR to main | lint → typecheck → test → build |
-| `.github/workflows/release.yml` | push of a `v*.*.*` tag | version-consistency check → lint → typecheck → test → build → zip `dist/` → create GitHub Release (auto-generated notes) |
+| `.github/workflows/release.yml` | push of a `v*.*.*` tag | version-consistency check → extract release notes from `CHANGELOG.md` → lint → typecheck → test → build → zip `dist/` → create GitHub Release |
 
 The release asset is `vidlever-vX.Y.Z.zip`. `manifest.json` sits at the zip
 root, so users can unzip and load the folder directly via
@@ -31,15 +31,19 @@ root, so users can unzip and load the folder directly via
 1. Bump `version` in both `package.json` and `src/manifest.json`
    (don't forget either one — the manifest only accepts plain `X.Y.Z`, so even
    for a prerelease it stays `X.Y.Z` without the suffix)
-2. Commit and merge to main
-3. Tag and push:
+2. Update `CHANGELOG.md` ([Keep a Changelog](https://keepachangelog.com/) format):
+   move the `[Unreleased]` content into a new `## [X.Y.Z] - YYYY-MM-DD` section
+   and refresh the link references at the bottom. The Release workflow uses this
+   section as the release notes and **fails if it's missing**
+3. Commit and merge to main
+4. Tag and push:
 
    ```sh
    git tag v0.2.0
    git push origin v0.2.0
    ```
 
-4. Once the Release workflow finishes, the release with the zip attached
+5. Once the Release workflow finishes, the release with the zip attached
    appears on the Releases page
 
 ## Notes

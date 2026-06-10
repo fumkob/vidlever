@@ -37,6 +37,24 @@ jobs:
             exit 1
           fi
 
+      - name: Extract release notes from CHANGELOG.md
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          TAG_VERSION="${TAG#v}"
+          BASE_VERSION="${TAG_VERSION%%-*}"
+          awk -v ver="$BASE_VERSION" '
+            $0 ~ "^## \\[" ver "\\]" { found = 1; next }
+            found && (/^## \[/ || /^\[[^]]+\]: /) { exit }
+            found { print }
+          ' CHANGELOG.md > RELEASE_NOTES.md
+          if ! grep -q '[^[:space:]]' RELEASE_NOTES.md; then
+            echo "::error::No changelog section found for $BASE_VERSION — add a '## [$BASE_VERSION]' entry to CHANGELOG.md."
+            exit 1
+          fi
+          echo "--- release notes ---"
+          cat RELEASE_NOTES.md
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -70,5 +88,5 @@ jobs:
           esac
           gh release create "$TAG" "vidlever-${TAG}.zip" \
             --title "$TAG" \
-            --generate-notes \
+            --notes-file RELEASE_NOTES.md \
             $PRERELEASE_FLAG
