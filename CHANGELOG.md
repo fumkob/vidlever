@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Keyboard seek actions now wake the site player's auto-hidden controls, so the seek bar stays visible when skipping — including in fullscreen.
+
+### Fixed
+
+- Fullscreen now targets the player container instead of the bare video element, so site seek bars and controls stay visible in fullscreen on most sites.
+
 ## [0.1.0] - 2026-06-10
 
 First public release. Vidlever is a Chrome extension (Manifest V3) that brings

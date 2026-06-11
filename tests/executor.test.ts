@@ -4,7 +4,7 @@
 // and `document` fullscreen/PiP state, so we pin those and assert directly.
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { executeAction } from "../src/content/executor.ts";
+import { executeAction, findFullscreenTarget } from "../src/content/executor.ts";
 import { DEFAULT_SPEED_LIMITS } from "../src/shared/defaults.ts";
 import type { ActionSpec, Binding, SpeedLimits } from "../src/shared/types.ts";
 
@@ -57,6 +57,24 @@ function setDocProp(
   Object.defineProperty(document, prop, { value: el, configurable: true });
 }
 
+/**
+ * Pin an element's box — happy-dom returns an all-zero getBoundingClientRect
+ * for everything, so geometry-sensitive helpers need their inputs stubbed.
+ */
+function size(el: Element, width: number, height: number, left = 0, top = 0): void {
+  el.getBoundingClientRect = () =>
+    ({
+      width,
+      height,
+      left,
+      top,
+      right: left + width,
+      bottom: top + height,
+      x: left,
+      y: top,
+    }) as DOMRect;
+}
+
 const LIMITS = DEFAULT_SPEED_LIMITS; // { min: 0.25, max: 4.0, decimals: 2 }
 
 beforeEach(() => {
@@ -68,6 +86,8 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  // Tests that exercise the DOM-walking helpers mount real subtrees.
+  document.body.innerHTML = "";
 });
 
 describe("playPause", () => {
@@ -274,6 +294,8 @@ describe("muteToggle", () => {
 
 describe("fullscreenToggle", () => {
   it("requests fullscreen on the video when none is active", () => {
+    // A bare video with no fitting/controls-bearing ancestor — and a zero-size
+    // rect under happy-dom — resolves to the video itself (see findFullscreenTarget).
     const video = makeVideo();
     const overlay = executeAction(bind({ action: "fullscreenToggle" }), video, LIMITS);
     expect(video.requestFullscreen).toHaveBeenCalledOnce();
@@ -286,6 +308,152 @@ describe("fullscreenToggle", () => {
     setDocProp("fullscreenElement", video);
     const overlay = executeAction(bind({ action: "fullscreenToggle" }), video, LIMITS);
     expect(document.exitFullscreen).toHaveBeenCalledOnce();
+    expect(video.requestFullscreen).not.toHaveBeenCalled();
+    expect(overlay).toBeNull();
+  });
+});
+
+describe("findFullscreenTarget", () => {
+  // The helper walks parentElement and runs querySelector, so each tree must
+  // be a real, connected DOM subtree with sizes pinned via `size`.
+  const VIDEO = { width: 640, height: 360 };
+
+  /** A 640×360 video, sized to match VIDEO. */
+  function sizedVideo(): HTMLVideoElement {
+    const video = makeVideo();
+    size(video, VIDEO.width, VIDEO.height);
+    return video;
+  }
+
+  it("returns the video when its rect is zero-sized", () => {
+    // makeVideo leaves the default all-zero rect, which short-circuits the walk.
+    const video = makeVideo();
+    expect(findFullscreenTarget(video)).toBe(video);
+  });
+
+  it("returns the video when the only ancestor is much larger (page column)", () => {
+    const page = document.createElement("div");
+    const video = sizedVideo();
+    page.append(video);
+    size(page, 1200, 900); // far beyond video * 1.1 + 32 on both axes
+    document.body.append(page);
+    expect(findFullscreenTarget(video)).toBe(video);
+  });
+
+  it("returns a same-size player container that holds a seek bar sibling", () => {
+    const player = document.createElement("div");
+    const seekBar = document.createElement("div");
+    seekBar.setAttribute("role", "slider");
+    const video = sizedVideo();
+    player.append(video, seekBar);
+    size(player, VIDEO.width, VIDEO.height);
+    document.body.append(player);
+    expect(findFullscreenTarget(video)).toBe(player);
+  });
+
+  it("skips a controls-less direct parent and returns the grandparent with controls (YouTube-like)", () => {
+    // #movie_player > .html5-video-container > video, with the seek bar living
+    // on #movie_player alongside .html5-video-container.
+    const moviePlayer = document.createElement("div");
+    moviePlayer.id = "movie_player";
+    const container = document.createElement("div");
+    container.className = "html5-video-container";
+    const seekBar = document.createElement("div");
+    seekBar.setAttribute("role", "slider");
+    const video = sizedVideo();
+    container.append(video);
+    moviePlayer.append(container, seekBar);
+    size(container, VIDEO.width, VIDEO.height);
+    size(moviePlayer, VIDEO.width, VIDEO.height);
+    document.body.append(moviePlayer);
+    expect(findFullscreenTarget(video)).toBe(moviePlayer);
+  });
+
+  it("prefers the wrapper owning the seek bar over an inner button-only overlay", () => {
+    // outer (seek bar) > inner (play overlay button only) > video.
+    const outer = document.createElement("div");
+    const inner = document.createElement("div");
+    const overlayButton = document.createElement("button");
+    const seekBar = document.createElement("div");
+    seekBar.setAttribute("role", "slider");
+    const video = sizedVideo();
+    inner.append(video, overlayButton);
+    outer.append(inner, seekBar);
+    size(inner, VIDEO.width, VIDEO.height);
+    size(outer, VIDEO.width, VIDEO.height);
+    document.body.append(outer);
+    expect(findFullscreenTarget(video)).toBe(outer);
+  });
+
+  it("accepts a container taller than the video by a docked control bar", () => {
+    const player = document.createElement("div");
+    const controlBar = document.createElement("button");
+    const video = sizedVideo();
+    player.append(video, controlBar);
+    // +50px height stays within video.height * 1.1 + 32 (360 * 1.1 + 32 = 428).
+    size(player, VIDEO.width, VIDEO.height + 50);
+    document.body.append(player);
+    expect(findFullscreenTarget(video)).toBe(player);
+  });
+
+  it("rejects an ancestor that exceeds the video height by far more than 10% + 32px", () => {
+    const player = document.createElement("div");
+    const controlBar = document.createElement("button");
+    const video = sizedVideo();
+    player.append(video, controlBar);
+    // 360 * 1.1 + 32 = 428; 600 blows past it, so the wrapper is rejected.
+    size(player, VIDEO.width, 600);
+    document.body.append(player);
+    expect(findFullscreenTarget(video)).toBe(video);
+  });
+
+  it("never selects a box-less wrapper (display:contents-like) but climbs through it", () => {
+    // player > ghost (zero rect, holds video AND seek bar) > video. The ghost
+    // matches the seek-bar probe, but requestFullscreen on a box-less element
+    // silently fails, so the sized player above it must win.
+    const player = document.createElement("div");
+    const ghost = document.createElement("div");
+    const seekBar = document.createElement("div");
+    seekBar.setAttribute("role", "slider");
+    const video = sizedVideo();
+    ghost.append(video, seekBar);
+    player.append(ghost);
+    size(ghost, 0, 0);
+    size(player, VIDEO.width, VIDEO.height);
+    document.body.append(player);
+    expect(findFullscreenTarget(video)).toBe(player);
+  });
+
+  it("climbs past an oversized intermediate layer to reach the player root above it", () => {
+    // player (video-sized, owns the seek bar) > overlay (full-page positioning
+    // layer) > video. The oversized rung must be skipped, not end the walk.
+    const player = document.createElement("div");
+    const overlay = document.createElement("div");
+    const seekBar = document.createElement("div");
+    seekBar.setAttribute("role", "slider");
+    const video = sizedVideo();
+    overlay.append(video);
+    player.append(overlay, seekBar);
+    size(overlay, 1920, 1080);
+    size(player, VIDEO.width, VIDEO.height);
+    document.body.append(player);
+    expect(findFullscreenTarget(video)).toBe(player);
+  });
+
+  it("fullscreenToggle requests fullscreen on the resolved container, not the video", () => {
+    const player = document.createElement("div") as HTMLDivElement & {
+      requestFullscreen: ReturnType<typeof vi.fn>;
+    };
+    const seekBar = document.createElement("div");
+    seekBar.setAttribute("role", "slider");
+    const video = sizedVideo();
+    player.append(video, seekBar);
+    size(player, VIDEO.width, VIDEO.height);
+    player.requestFullscreen = vi.fn(() => Promise.resolve());
+    document.body.append(player);
+
+    const overlay = executeAction(bind({ action: "fullscreenToggle" }), video, LIMITS);
+    expect(player.requestFullscreen).toHaveBeenCalledOnce();
     expect(video.requestFullscreen).not.toHaveBeenCalled();
     expect(overlay).toBeNull();
   });
@@ -339,6 +507,93 @@ describe("seekToStart / seekToEnd", () => {
     const overlay = executeAction(bind({ action: "seekToEnd" }), video, LIMITS);
     expect(video.currentTime).toBe(10);
     expect(overlay).toEqual({ key: "hudSeekEnd" });
+  });
+});
+
+describe("wakeControls (pointer/mouse nudge after seeks)", () => {
+  // Sites auto-hide controls; the seek actions replay a small pointer movement
+  // over the video so the player's user-activity tracker re-shows the seek bar.
+  // We pin a non-zero box and assert the synthetic pointer lands near its
+  // center. Listeners go on a *parent* container to prove the events bubble
+  // out of the video.
+  const RECT = { left: 100, top: 200, width: 640, height: 360 };
+  const CENTER_X = RECT.left + RECT.width / 2; // 420
+  const CENTER_Y = RECT.top + RECT.height / 2; // 380
+
+  /**
+   * Mount a sized video inside a parent container under document.body and
+   * capture every pointermove/mousemove that bubbles up to the parent.
+   */
+  function withListeners(video?: HTMLVideoElement): {
+    video: HTMLVideoElement;
+    pointerMoves: Event[];
+    mouseMoves: Event[];
+  } {
+    const v = video ?? makeVideo();
+    size(v, RECT.width, RECT.height, RECT.left, RECT.top);
+    const parent = document.createElement("div");
+    parent.append(v);
+    document.body.append(parent);
+    const pointerMoves: Event[] = [];
+    const mouseMoves: Event[] = [];
+    parent.addEventListener("pointermove", (e) => pointerMoves.push(e));
+    parent.addEventListener("mousemove", (e) => mouseMoves.push(e));
+    return { video: v, pointerMoves, mouseMoves };
+  }
+
+  const SEEK_ACTIONS: [string, ActionSpec][] = [
+    ["skipForward", { action: "skipForward", params: { seconds: 10 } }],
+    ["skipBackward", { action: "skipBackward", params: { seconds: 10 } }],
+    ["seekToStart", { action: "seekToStart" }],
+    ["seekToEnd", { action: "seekToEnd" }],
+  ];
+
+  it.each(
+    SEEK_ACTIONS,
+  )("%s dispatches a pointermove and a mousemove that bubble to the parent, near the rect center", (_name, spec) => {
+    const { video, pointerMoves, mouseMoves } = withListeners();
+    executeAction(bind(spec), video, LIMITS);
+    expect(pointerMoves).toHaveLength(1);
+    expect(mouseMoves).toHaveLength(1);
+    for (const e of [...pointerMoves, ...mouseMoves]) {
+      const me = e as MouseEvent;
+      // Jitter adds 0 or 1px; assert within 1px of the center on each axis.
+      expect(me.clientX).toBeGreaterThanOrEqual(CENTER_X);
+      expect(me.clientX).toBeLessThanOrEqual(CENTER_X + 1);
+      expect(me.clientY).toBeGreaterThanOrEqual(CENTER_Y);
+      expect(me.clientY).toBeLessThanOrEqual(CENTER_Y + 1);
+    }
+  });
+
+  it("dispatched events bubble and are composed", () => {
+    const { video, pointerMoves, mouseMoves } = withListeners();
+    executeAction(bind({ action: "seekToStart" }), video, LIMITS);
+    for (const e of [...pointerMoves, ...mouseMoves]) {
+      expect(e.bubbles).toBe(true);
+      expect(e.composed).toBe(true);
+    }
+  });
+
+  it("alternates the jitter: two consecutive seeks land on different positions", () => {
+    // The contract is "players that drop stationary pointer events still see
+    // movement", not any particular offset — so assert the positions differ,
+    // not the exact pixel delta. The counter is module-global and persists
+    // across tests, hence comparing two back-to-back calls.
+    const { video, pointerMoves } = withListeners();
+    executeAction(bind({ action: "seekToStart" }), video, LIMITS);
+    executeAction(bind({ action: "seekToStart" }), video, LIMITS);
+    expect(pointerMoves).toHaveLength(2);
+    const first = (pointerMoves[0] as MouseEvent).clientX;
+    const second = (pointerMoves[1] as MouseEvent).clientX;
+    expect(second).not.toBe(first);
+  });
+
+  it("non-seek actions (muteToggle, speedDelta) do not dispatch pointermove/mousemove", () => {
+    const { video, pointerMoves, mouseMoves } = withListeners(makeVideo({ muted: false }));
+    executeAction(bind({ action: "muteToggle" }), video, LIMITS);
+    executeAction(bind({ action: "speedDelta", params: { delta: 0.1 } }), video, LIMITS);
+    expect(pointerMoves).toHaveLength(0);
+    expect(mouseMoves).toHaveLength(0);
   });
 });
 

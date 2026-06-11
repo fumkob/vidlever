@@ -48,11 +48,13 @@ The following **action types** are supported. Each action type can be bound to a
 | `speedDelta` | `delta: number` | Adjust `playbackRate` by `delta` (e.g., `+0.1`, `-0.1`). |
 | `speedSet` | `rate: number` | Set `playbackRate` to an exact value (typically "reset to 1.0×"). Toggles: pressing again while already at `rate` restores the previous rate, and once more returns to `rate`. |
 | `muteToggle` | — | Toggle `muted`. |
-| `fullscreenToggle` | — | Enter / exit fullscreen on the target video element. |
+| `fullscreenToggle` | — | Enter / exit fullscreen on the player container that owns the target video (so site seek bars and controls stay visible); falls back to the video element itself when no player container with controls is found. |
 | `pipToggle` | — | Enter / exit Picture-in-Picture. |
 | `seekToStart` | — | Jump to `currentTime = 0`. |
 | `seekToEnd` | — | Jump to `currentTime = duration`. |
 | `loopToggle` | — | Toggle the `loop` attribute. |
+
+Seek actions (`skipForward`, `skipBackward`, `seekToStart`, `seekToEnd`) also replay a synthetic pointer movement over the video so the site's auto-hidden controls (the seek bar) reappear briefly — keyboard input is consumed at the capture phase and would otherwise never wake them.
 
 ## 4. Activation Model
 
@@ -207,7 +209,7 @@ A small, semi-transparent overlay is rendered on top of the target video at all 
 - **Size**: ~14 px font for the speed readout, ~12 px for icons. Pill-shaped background.
 - **Opacity**: `0.4` resting; transitions to `0.9` while the pointer is over the video (`mouseenter` / `mouseleave`).
 - **z-index**: `2147483647` (max signed 32-bit int) so it floats above any site overlay.
-- **Fullscreen**: the HUD element is reparented into the fullscreen element on `fullscreenchange` so it stays visible.
+- **Fullscreen**: the HUD element stays in `document.body` and is promoted to the browser's top layer via the Popover API on `fullscreenchange`, so it renders above the fullscreen element without reparenting.
 
 ### 8.3 Persistent content
 
@@ -397,7 +399,7 @@ sequenceDiagram
     {
       "matches": ["<all_urls>"],
       "all_frames": true,
-      "run_at": "document_idle",
+      "run_at": "document_start",
       "js": ["content.js"]
     }
   ]
