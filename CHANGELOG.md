@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-06-12
+
 ### Fixed
 
 - `playPause` now wakes the site player's auto-hidden controls like the seek
@@ -59,6 +61,7 @@ distributed as an unpacked extension via GitHub Releases.
   `vidlever-settings.json`, schema-validated on import
 - Options page built with Preact, localized via `_locales` (English)
 
-[Unreleased]: https://github.com/fumkob/vidlever/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/fumkob/vidlever/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/fumkob/vidlever/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/fumkob/vidlever/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/fumkob/vidlever/releases/tag/v0.1.0
