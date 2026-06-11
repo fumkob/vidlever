@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Vidlever",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Keyboard-driven playback control for every HTML5 video.",
   "default_locale": "en",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx+YHKE523udLHHy1ka5ImBKtBVDUwisAPMzZwB/7WUHi/o1qJhIRzAYBww1h724hT15sDliWr46wPqsSVy6IMlOVSy6A2YtnaQEShVa9501lvQpIXwsWty1+JPZRwkXu0WxQHoBV215QkS3+RsMDnkqsLAXW7ig8atsMuRIcGVuhMdyX8EvtDDoU29yl+qgBGre2WtqBxVEdOIrunp92izlbathGZNsmwn4vVXF9oO5lEAyON6T+p1KGqlfyka2adPuWS1mc/wAZSm9eAs8ju0simNdAV1iEmO6yy+BGvWUHzd/TClO01LBgyb3/b7dXzna/a3oZNvqdieM8Ig5LqwIDAQAB",

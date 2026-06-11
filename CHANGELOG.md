@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-12
+
 ### Added
 
 - Keyboard seek actions now wake the site player's auto-hidden controls, so the seek bar stays visible when skipping — including in fullscreen.
@@ -51,5 +53,6 @@ distributed as an unpacked extension via GitHub Releases.
   `vidlever-settings.json`, schema-validated on import
 - Options page built with Preact, localized via `_locales` (English)
 
-[Unreleased]: https://github.com/fumkob/vidlever/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/fumkob/vidlever/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/fumkob/vidlever/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/fumkob/vidlever/releases/tag/v0.1.0
