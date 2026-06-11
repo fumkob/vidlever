@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `playPause` now wakes the site player's auto-hidden controls like the seek
+  actions already do, so the seek bar reappears when toggling playback with the
+  keyboard — including in fullscreen.
+
 ## [0.2.0] - 2026-06-12
 
 ### Added

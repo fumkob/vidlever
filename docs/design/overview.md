@@ -54,7 +54,7 @@ The following **action types** are supported. Each action type can be bound to a
 | `seekToEnd` | — | Jump to `currentTime = duration`. |
 | `loopToggle` | — | Toggle the `loop` attribute. |
 
-Seek actions (`skipForward`, `skipBackward`, `seekToStart`, `seekToEnd`) also replay a synthetic pointer movement over the video so the site's auto-hidden controls (the seek bar) reappear briefly — keyboard input is consumed at the capture phase and would otherwise never wake them.
+Seek actions (`skipForward`, `skipBackward`, `seekToStart`, `seekToEnd`) and `playPause` also replay a synthetic pointer movement over the video so the site's auto-hidden controls (the seek bar) reappear briefly — keyboard input is consumed at the capture phase and would otherwise never wake them.
 
 ## 4. Activation Model
 

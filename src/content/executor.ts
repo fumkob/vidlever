@@ -5,7 +5,7 @@
 
 import type { HudMessageKey } from "../shared/i18n.ts";
 import { applyRate, resolveRate } from "../shared/rate.ts";
-import type { Binding, SpeedLimits } from "../shared/types.ts";
+import type { ActionType, Binding, SpeedLimits } from "../shared/types.ts";
 
 /**
  * The transient HUD overlay an action asks to flash: an i18n message key plus
@@ -82,10 +82,11 @@ export function findFullscreenTarget(video: HTMLVideoElement): Element {
  * Sites auto-hide their controls after a few idle seconds (always in
  * fullscreen), and our key handling is consumed at the capture phase so the
  * page never sees the activity — a keyboard seek would land with the seek bar
- * hidden, leaving the user blind to where they jumped. Replaying a small
- * pointer movement over the video wakes the player's user-activity tracker —
- * the same signal a real mouse wiggle sends — so the site briefly shows its
- * seek bar after each seek.
+ * hidden, leaving the user blind to where they jumped, and a play/pause would
+ * give no on-player feedback either. Replaying a small pointer movement over
+ * the video wakes the player's user-activity tracker — the same signal a real
+ * mouse wiggle sends — so the site briefly re-shows its controls after each
+ * action marked in ACTION_WAKES_CONTROLS.
  */
 let wakeJitter = 0;
 function wakeControls(video: HTMLVideoElement): void {
@@ -106,15 +107,52 @@ function wakeControls(video: HTMLVideoElement): void {
 }
 
 /**
+ * Whether each action's feedback lives in the site player's own UI — the seek
+ * bar position, the play state — so executeAction wakes the site's controls
+ * after dispatching it. Actions marked `false` read out in the HUD alone and
+ * must not flash the site chrome on every press. The `satisfies` clause ties
+ * the keys to `ActionSpec` (same idiom as ACTION_PARAM_FIELD), so a 12th
+ * action is a compile error here until its wake behavior is declared.
+ */
+const ACTION_WAKES_CONTROLS = {
+  playPause: true,
+  skipForward: true,
+  skipBackward: true,
+  speedDelta: false,
+  speedSet: false,
+  muteToggle: false,
+  fullscreenToggle: false,
+  pipToggle: false,
+  seekToStart: true,
+  seekToEnd: true,
+  loopToggle: false,
+} as const satisfies { [A in ActionType]: boolean };
+
+/**
  * Run a single binding's action against the target video and report the overlay
  * to flash (or `null` for none). Pure dispatch: it touches only `video`,
  * `document` fullscreen/PiP state, the module-scoped `rateBeforeSet` toggle
- * memory (see above), the synthetic activity events seeks replay on the video
- * (see wakeControls), and the returned descriptor — never the HUD or
+ * memory (see above), the synthetic activity events replayed for actions that
+ * wake controls (see wakeControls), and the returned descriptor — never the
+ * HUD or
  * chrome.i18n — so the action effects stay unit-testable in isolation
  * (overview.md §10.3).
  */
 export function executeAction(
+  binding: Binding,
+  video: HTMLVideoElement,
+  limits: SpeedLimits,
+): OverlayMessage | null {
+  const overlay = dispatchAction(binding, video, limits);
+  if (ACTION_WAKES_CONTROLS[binding.action]) wakeControls(video);
+  return overlay;
+}
+
+/**
+ * The switch over action types: video/document state mutation and overlay
+ * choice only — executeAction layers the controls wake on top.
+ */
+function dispatchAction(
   binding: Binding,
   video: HTMLVideoElement,
   limits: SpeedLimits,
@@ -133,13 +171,11 @@ export function executeAction(
     case "skipForward": {
       const { seconds } = binding.params;
       video.currentTime += seconds;
-      wakeControls(video);
       return { key: "hudSkipForward", subs: [String(seconds)] };
     }
     case "skipBackward": {
       const { seconds } = binding.params;
       video.currentTime -= seconds;
-      wakeControls(video);
       return { key: "hudSkipBackward", subs: [String(seconds)] };
     }
     case "speedDelta": {
@@ -196,13 +232,11 @@ export function executeAction(
     }
     case "seekToStart": {
       video.currentTime = 0;
-      wakeControls(video);
       return { key: "hudSeekStart" };
     }
     case "seekToEnd": {
       // Live streams report a non-finite duration; jumping there is meaningless.
       if (Number.isFinite(video.duration)) video.currentTime = video.duration;
-      wakeControls(video);
       return { key: "hudSeekEnd" };
     }
     case "loopToggle": {

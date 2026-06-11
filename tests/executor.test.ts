@@ -510,12 +510,12 @@ describe("seekToStart / seekToEnd", () => {
   });
 });
 
-describe("wakeControls (pointer/mouse nudge after seeks)", () => {
-  // Sites auto-hide controls; the seek actions replay a small pointer movement
-  // over the video so the player's user-activity tracker re-shows the seek bar.
-  // We pin a non-zero box and assert the synthetic pointer lands near its
-  // center. Listeners go on a *parent* container to prove the events bubble
-  // out of the video.
+describe("wakeControls (pointer/mouse nudge after seeks and play/pause)", () => {
+  // Sites auto-hide controls; the seek and play/pause actions replay a small
+  // pointer movement over the video so the player's user-activity tracker
+  // re-shows the seek bar and on-player controls. We pin a non-zero box and
+  // assert the synthetic pointer lands near its center. Listeners go on a
+  // *parent* container to prove the events bubble out of the video.
   const RECT = { left: 100, top: 200, width: 640, height: 360 };
   const CENTER_X = RECT.left + RECT.width / 2; // 420
   const CENTER_Y = RECT.top + RECT.height / 2; // 380
@@ -541,17 +541,19 @@ describe("wakeControls (pointer/mouse nudge after seeks)", () => {
     return { video: v, pointerMoves, mouseMoves };
   }
 
-  const SEEK_ACTIONS: [string, ActionSpec][] = [
-    ["skipForward", { action: "skipForward", params: { seconds: 10 } }],
-    ["skipBackward", { action: "skipBackward", params: { seconds: 10 } }],
-    ["seekToStart", { action: "seekToStart" }],
-    ["seekToEnd", { action: "seekToEnd" }],
+  const WAKE_ACTIONS: [string, ActionSpec, VideoState][] = [
+    ["skipForward", { action: "skipForward", params: { seconds: 10 } }, {}],
+    ["skipBackward", { action: "skipBackward", params: { seconds: 10 } }, {}],
+    ["seekToStart", { action: "seekToStart" }, {}],
+    ["seekToEnd", { action: "seekToEnd" }, {}],
+    ["playPause (paused → play)", { action: "playPause" }, { paused: true }],
+    ["playPause (playing → pause)", { action: "playPause" }, { paused: false }],
   ];
 
   it.each(
-    SEEK_ACTIONS,
-  )("%s dispatches a pointermove and a mousemove that bubble to the parent, near the rect center", (_name, spec) => {
-    const { video, pointerMoves, mouseMoves } = withListeners();
+    WAKE_ACTIONS,
+  )("%s dispatches a pointermove and a mousemove that bubble to the parent, near the rect center", (_name, spec, state) => {
+    const { video, pointerMoves, mouseMoves } = withListeners(makeVideo(state));
     executeAction(bind(spec), video, LIMITS);
     expect(pointerMoves).toHaveLength(1);
     expect(mouseMoves).toHaveLength(1);
@@ -588,10 +590,12 @@ describe("wakeControls (pointer/mouse nudge after seeks)", () => {
     expect(second).not.toBe(first);
   });
 
-  it("non-seek actions (muteToggle, speedDelta) do not dispatch pointermove/mousemove", () => {
+  it("non-wake actions (muteToggle, speedDelta, speedSet, loopToggle) do not dispatch pointermove/mousemove", () => {
     const { video, pointerMoves, mouseMoves } = withListeners(makeVideo({ muted: false }));
     executeAction(bind({ action: "muteToggle" }), video, LIMITS);
     executeAction(bind({ action: "speedDelta", params: { delta: 0.1 } }), video, LIMITS);
+    executeAction(bind({ action: "speedSet", params: { rate: 2 } }), video, LIMITS);
+    executeAction(bind({ action: "loopToggle" }), video, LIMITS);
     expect(pointerMoves).toHaveLength(0);
     expect(mouseMoves).toHaveLength(0);
   });
