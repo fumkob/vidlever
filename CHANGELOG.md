@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The extension icon is now a purpose-built monogram — a "V" standing on a
+  fulcrum — in place of the placeholder mark. Each size is rendered from the
+  vector source, so the 16px toolbar icon stays legible.
+
 ## [0.2.1] - 2026-06-12
 
 ### Fixed
